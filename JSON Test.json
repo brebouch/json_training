@@ -1,0 +1,227 @@
+{
+  "workflow": {
+    "unique_name": "definition_workflow_01WJ4W4U9FN5D6vWF7V6BPCTTdnVtHQ6M9g",
+    "name": "JSON Test",
+    "title": "JSON Test",
+    "type": "generic.workflow",
+    "base_type": "workflow",
+    "variables": [
+      {
+        "schema_id": "datatype.string",
+        "properties": {
+          "value": "",
+          "scope": "local",
+          "name": "Emails to Send",
+          "type": "datatype.string",
+          "is_required": false,
+          "is_invisible": false
+        },
+        "unique_name": "variable_workflow_01WJ59RD4LDK22PBuuApZqz2hSZhiKtJLmo",
+        "object_type": "variable_workflow"
+      }
+    ],
+    "properties": {
+      "atomic": {
+        "is_atomic": false
+      },
+      "delete_workflow_instance": false,
+      "description": "Test API:  https://jsonplaceholder.typicode.com/\n\nJSONPATH Evaluator:https://jsonpath.herokuapp.com/",
+      "display_name": "JSON Test",
+      "runtime_user": {
+        "target_default": true
+      },
+      "target": {
+        "target_type": "web-service.endpoint",
+        "target_id": "definition_target_01WJ4X31ONATY23H6vLbmil6bYts5bTn9an",
+        "execute_on_workflow_target": true
+      }
+    },
+    "object_type": "definition_workflow",
+    "actions": [
+      {
+        "unique_name": "definition_activity_01WJ4X6QLKBP156IWU0A2YYPLTPP1LPm13l",
+        "name": "HTTP Request",
+        "title": "Get ToDo's",
+        "type": "web-service.http_request",
+        "base_type": "activity",
+        "properties": {
+          "action_timeout": 180,
+          "allow_auto_redirect": true,
+          "continue_on_error_status_code": false,
+          "continue_on_failure": false,
+          "display_name": "Get ToDo's",
+          "method": "GET",
+          "relative_url": "/todos",
+          "runtime_user": {
+            "target_default": true
+          },
+          "skip_execution": false,
+          "target": {
+            "use_workflow_target": true
+          }
+        },
+        "object_type": "definition_activity"
+      },
+      {
+        "unique_name": "definition_activity_01WJ4YRK6LOCT39TBXeNg0YPqB210vOPVbD",
+        "name": "HTTP Request",
+        "title": "Get First User",
+        "type": "web-service.http_request",
+        "base_type": "activity",
+        "properties": {
+          "action_timeout": 180,
+          "allow_auto_redirect": true,
+          "continue_on_error_status_code": false,
+          "continue_on_failure": false,
+          "display_name": "Get First User",
+          "method": "GET",
+          "relative_url": "/users/1",
+          "runtime_user": {
+            "target_default": true
+          },
+          "skip_execution": false,
+          "target": {
+            "use_workflow_target": true
+          }
+        },
+        "object_type": "definition_activity"
+      },
+      {
+        "unique_name": "definition_activity_01WJ574RBV2M71pVAK8nSNbeORrabbTiwmz",
+        "name": "Read Table from JSON",
+        "title": "Read Table from JSON",
+        "type": "corejava.read_table_from_json",
+        "base_type": "activity",
+        "properties": {
+          "action_timeout": 180,
+          "continue_on_failure": false,
+          "display_name": "Read Table from JSON",
+          "input_json": "$activity.definition_activity_01WJ4X6QLKBP156IWU0A2YYPLTPP1LPm13l.output.response_body$",
+          "jsonpath_query": "$[?(@.completed == false)]",
+          "persist_output": false,
+          "populate_columns": false,
+          "skip_execution": false,
+          "table_columns": [
+            {
+              "column_name": "userId",
+              "column_type": "string"
+            },
+            {
+              "column_name": "title",
+              "column_type": "string"
+            }
+          ]
+        },
+        "object_type": "definition_activity"
+      },
+      {
+        "unique_name": "definition_activity_01WJ58T1QE5K867JISN25EoOb5M0Tu1kYbs",
+        "name": "For Each",
+        "title": "For Each",
+        "type": "logic.for_each",
+        "base_type": "activity",
+        "properties": {
+          "continue_on_failure": false,
+          "display_name": "For Each",
+          "skip_execution": false,
+          "source_array": "$activity.definition_activity_01WJ574RBV2M71pVAK8nSNbeORrabbTiwmz.output.read_table_from_json$"
+        },
+        "object_type": "definition_activity",
+        "actions": [
+          {
+            "unique_name": "definition_activity_01WJ591B6FSRD5tRNREtKi3OEblbedeOGAv",
+            "name": "HTTP Request",
+            "title": "Get User Info",
+            "type": "web-service.http_request",
+            "base_type": "activity",
+            "properties": {
+              "action_timeout": 180,
+              "allow_auto_redirect": true,
+              "continue_on_error_status_code": false,
+              "continue_on_failure": false,
+              "display_name": "Get User Info",
+              "method": "GET",
+              "relative_url": "/users/$activity.definition_activity_01WJ58T1QE5K867JISN25EoOb5M0Tu1kYbs.input.source_array[@].userId$",
+              "runtime_user": {
+                "target_default": true
+              },
+              "skip_execution": false,
+              "target": {
+                "use_workflow_target": true
+              }
+            },
+            "object_type": "definition_activity"
+          },
+          {
+            "unique_name": "definition_activity_01WJ5AJALCYUX6REE2hNgPjJwGdjfQArlgn",
+            "name": "JSONPath Query",
+            "title": "Parse User Information",
+            "type": "corejava.jsonpathquery",
+            "base_type": "activity",
+            "properties": {
+              "action_timeout": 180,
+              "continue_on_failure": false,
+              "display_name": "Parse User Information",
+              "input_json": "$activity.definition_activity_01WJ591B6FSRD5tRNREtKi3OEblbedeOGAv.output.response_body$",
+              "jsonpath_queries": [
+                {
+                  "jsonpath_query": "$.name",
+                  "jsonpath_query_name": "name",
+                  "jsonpath_query_type": "string"
+                },
+                {
+                  "jsonpath_query": "$.email",
+                  "jsonpath_query_name": "email",
+                  "jsonpath_query_type": "string"
+                }
+              ],
+              "skip_execution": false
+            },
+            "object_type": "definition_activity"
+          },
+          {
+            "unique_name": "definition_activity_01WJ59UMCNM1C6VvbsyWlODsH8b1VEKHBch",
+            "name": "Set Variables",
+            "title": "Update Emails to Send",
+            "type": "core.set_multiple_variables",
+            "base_type": "activity",
+            "properties": {
+              "continue_on_failure": false,
+              "display_name": "Update Emails to Send",
+              "skip_execution": false,
+              "variables_to_update": [
+                {
+                  "variable_to_update": "$workflow.definition_workflow_01WJ4W4U9FN5D6vWF7V6BPCTTdnVtHQ6M9g.local.variable_workflow_01WJ59RD4LDK22PBuuApZqz2hSZhiKtJLmo$",
+                  "variable_value_new": "$workflow.definition_workflow_01WJ4W4U9FN5D6vWF7V6BPCTTdnVtHQ6M9g.local.variable_workflow_01WJ59RD4LDK22PBuuApZqz2hSZhiKtJLmo$\n\nName: $activity.definition_activity_01WJ5AJALCYUX6REE2hNgPjJwGdjfQArlgn.output.jsonpath_queries.name$\nEmail: $activity.definition_activity_01WJ5AJALCYUX6REE2hNgPjJwGdjfQArlgn.output.jsonpath_queries.email$\nToDo: $activity.definition_activity_01WJ58T1QE5K867JISN25EoOb5M0Tu1kYbs.input.source_array[@].title$\n\n"
+                }
+              ]
+            },
+            "object_type": "definition_activity"
+          }
+        ]
+      }
+    ],
+    "categories": [
+      "category_1BMfMXSnJMyt5Ihqi7rWJr5N8cf"
+    ]
+  },
+  "targets": {
+    "definition_target_01WJ4X31ONATY23H6vLbmil6bYts5bTn9an": {
+      "unique_name": "definition_target_01WJ4X31ONATY23H6vLbmil6bYts5bTn9an",
+      "name": "JSONPlaceholder TEST",
+      "title": "JSONPlaceholder TEST",
+      "type": "web-service.endpoint",
+      "base_type": "target",
+      "object_type": "definition_target",
+      "properties": {
+        "disable_certificate_validation": false,
+        "display_name": "JSONPlaceholder TEST",
+        "host": "jsonplaceholder.typicode.com",
+        "ignore_proxy": false,
+        "no_runtime_user": true,
+        "port": 443,
+        "protocol": "https"
+      }
+    }
+  }
+}
